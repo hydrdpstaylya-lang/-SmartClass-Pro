@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#146550"><title>آزمون‌ساز آموزگار | SmartClass</title><link rel="stylesheet" href="./style.css"><script type="module" src="./app.js"></script></head>
+<body>
+<a class="skip" href="#config">رفتن به تنظیمات آزمون</a>
+<header class="app-header"><a class="brand" href="/#school" target="_top"><span class="brand-icon" aria-hidden="true">✦</span><span><b>SmartClass</b><small>میز کار آموزگار</small></span></a><span class="header-divider"></span><span class="page-name">آزمون‌ساز هوشمند</span><div class="header-end"><span id="identity" class="identity">در حال بررسی حساب…</span><a class="back" href="/#school" target="_top">بازگشت به کلاس <span aria-hidden="true">↗</span></a></div></header>
+<main class="app-main">
+ <div class="intro"><div><span class="eyebrow"><i></i> از ایدهٔ درس تا برگهٔ آزمون</span><h1>یک آزمون خوب،<em> از یک هدف روشن.</em></h1><p>موضوع را مشخص کن؛ سؤال‌ها را بساز، بازبینی کن و برای کلاس آماده کن.</p></div><button class="button saved-button" id="history-open" disabled><span aria-hidden="true">▤</span> آزمون‌های من <span id="saved-count">۰</span></button></div>
+ <div id="access" class="access" role="status" hidden></div>
+ <div class="workbench" id="workbench" hidden>
+ <aside class="settings"><form id="config"><div class="section-heading"><span class="step-number">۱</span><div><h2>طرح آزمون</h2><p>متناسب با درس و کلاس تو</p></div><span class="small-label">تنظیمات</span></div>
+ <label class="field">عنوان آزمون<input name="title" value="آزمون کلاسی ریاضی" required minlength="2" maxlength="120"></label>
+ <div class="field-row"><label class="field">درس<select name="subject"></select></label><label class="field">پایه<select name="grade"></select></label></div>
+ <label class="field">موضوع یا هدف یادگیری<textarea name="topic" required minlength="2" maxlength="300" rows="2" placeholder="مثلاً ضرب و جمع تکراری">ضرب و جمع تکراری</textarea></label>
+ <div class="field-row"><label class="field">تعداد سؤال<select name="count"></select></label><label class="field">سطح دشواری<select name="difficulty"><option value="easy">آسان</option><option value="medium" selected>متوسط</option><option value="hard">چالشی</option></select></label></div>
+ <fieldset class="kind-field"><legend>نوع سؤال‌ها</legend><div class="segmented"><label><input type="radio" name="kind" value="mixed" checked><span>ترکیبی</span></label><label><input type="radio" name="kind" value="choice"><span>چهارگزینه‌ای</span></label><label><input type="radio" name="kind" value="short"><span>پاسخ کوتاه</span></label></div></fieldset>
+ <details class="source"><summary><span>متن درس <small>اختیاری</small></span><span aria-hidden="true">＋</span></summary><p>برای ساخت سؤال از محتوای خودت، متن درس را اینجا بگذار. حداکثر ۶۰۰۰ نویسه.</p><textarea name="reference" rows="6" maxlength="6000" aria-label="متن مرجع درس" placeholder="متن درس یا نکته‌های موردنظر آموزگار…"></textarea><small id="source-count">۰ / ۶۰۰۰</small></details>
+ <div class="generate-area"><button class="button primary generate" type="submit" id="generate"><span aria-hidden="true">✦</span><span id="generate-label">ساخت آزمون هوشمند</span><span aria-hidden="true">←</span></button><button type="button" class="text-button" id="cancel" hidden>توقف دریافت</button><p>خروجی پیشنهادی را پیش از استفاده در کلاس مرور کن.</p></div>
+ </form><div class="tip"><span aria-hidden="true">✧</span><div><b>هدف دقیق‌تر، سؤال بهتر</b><p>به‌جای «ریاضی»، بنویس «تشخیص گروه‌های مساوی و تبدیل جمع تکراری به ضرب».</p></div></div></aside>
+ <section class="document-area" aria-label="پیش‌نمایش آزمون"><div class="document-toolbar"><div class="preview-label"><span class="step-number">۲</span><b>برگهٔ آزمون</b><span id="document-status">پیش‌نمایش</span></div><div class="toolbar-actions"><button class="text-button" id="new-exam" disabled>آزمون تازه</button><button class="button small" id="edit" disabled aria-pressed="false">ویرایش سؤال‌ها</button><button class="button small save-button" id="save" disabled>ذخیره در حساب</button></div></div>
+ <p class="message" id="message" role="status" hidden></p>
+ <div id="loading" class="loading" role="status" hidden><div class="spinner"></div><h2>آزمونت در حال ساخته‌شدن است</h2><p>درخواست به هوش مصنوعی ارسال شد؛ لطفاً کمی صبر کن.</p><small>تا دریافت پاسخ، برگهٔ قبلی حفظ می‌شود.</small></div>
+ <div class="paper empty-paper" id="empty"><div class="empty-icon" aria-hidden="true"><span>✦</span><i></i><i></i><i></i></div><span class="small-label">جای یک آزمون خوب خالی است</span><h2>برای کلاس بعدی، آماده‌تر باش.</h2><p>تنظیمات سمت راست را بررسی کن و<br>«ساخت آزمون هوشمند» را بزن.</p><div class="empty-steps"><span><b>۱</b> انتخاب موضوع</span><span><b>۲</b> بازبینی سؤال‌ها</span><span><b>۳</b> چاپ و استفاده</span></div></div>
+ <article class="paper" id="document" hidden></article>
+ <div class="output-footer"><span id="output-note">پاسخ‌نامه جدا از برگهٔ دانش‌آموز چاپ می‌شود.</span><div><button class="button" id="export" disabled>دریافت متن</button><button class="button" id="print-key" disabled>چاپ پاسخ‌نامه</button><button class="button primary" id="print-student" disabled>چاپ برگهٔ دانش‌آموز <span aria-hidden="true">↗</span></button></div></div>
+ </section></div>
+</main>
+<dialog id="history" aria-labelledby="history-title"><header><div><span class="eyebrow">آرشیو شخصی آموزگار</span><h2 id="history-title">آزمون‌های من</h2></div><button class="close-button" id="history-close" aria-label="بستن آزمون‌های من">×</button></header><p class="muted">آزمون‌ها در حساب خودت روی همین سرور ذخیره می‌شوند.</p><div id="history-list"></div></dialog>
+<footer class="app-footer"><span>SmartClass · ابزارهای آموزگار</span><span>طراحی با کمک هوش مصنوعی، با بازبینی آموزگار</span></footer>
+</body></html>

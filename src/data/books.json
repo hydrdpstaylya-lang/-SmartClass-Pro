@@ -1,0 +1,58 @@
+[
+  {
+    "id": "quran",
+    "title": "آموزش قرآن سوم دبستان",
+    "code": "301",
+    "year": "1405-1406",
+    "publisherUrl": "https://www.chap.sch.ir/books/14155",
+    "pdfUrl": "https://chap.sch.ir/sites/default/files/lbooks/1405-1406/10/C301.pdf"
+  },
+  {
+    "id": "hedie",
+    "title": "هدیه‌های آسمان سوم دبستان",
+    "code": "302",
+    "year": "1405-1406",
+    "publisherUrl": "https://www.chap.sch.ir/books/14156",
+    "pdfUrl": null
+  },
+  {
+    "id": "farsi",
+    "title": "فارسی سوم دبستان",
+    "code": "303",
+    "year": "1405-1406",
+    "publisherUrl": "https://www.chap.sch.ir/books/14157",
+    "pdfUrl": "https://www.chap.sch.ir/sites/default/files/lbooks/1405-1406/10/C303.pdf"
+  },
+  {
+    "id": "writing",
+    "title": "نگارش فارسی سوم دبستان",
+    "code": "304",
+    "year": "1405-1406",
+    "publisherUrl": "https://www.chap.sch.ir/books/14158",
+    "pdfUrl": null
+  },
+  {
+    "id": "math",
+    "title": "ریاضی سوم دبستان",
+    "code": "305",
+    "year": "1405-1406",
+    "publisherUrl": "https://www.chap.sch.ir/books/14159",
+    "pdfUrl": "https://www.chap.sch.ir/sites/default/files/lbooks/1405-1406/10/C305.pdf"
+  },
+  {
+    "id": "science",
+    "title": "علوم تجربی سوم دبستان",
+    "code": "306",
+    "year": "1405-1406",
+    "publisherUrl": "https://www.chap.sch.ir/books/14160",
+    "pdfUrl": "https://www.chap.sch.ir/sites/default/files/lbooks/1405-1406/10/C306.pdf"
+  },
+  {
+    "id": "social",
+    "title": "مطالعات اجتماعی سوم دبستان",
+    "code": "307",
+    "year": "1405-1406",
+    "publisherUrl": "https://www.chap.sch.ir/books/14161",
+    "pdfUrl": "https://www.chap.sch.ir/sites/default/files/lbooks/1405-1406/10/C307.pdf"
+  }
+]

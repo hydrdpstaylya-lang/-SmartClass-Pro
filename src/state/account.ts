@@ -1,0 +1,18 @@
+import {useSyncExternalStore} from 'react'
+import {getState,importProgress,switchAccount,onProgressChange,validate} from './store'
+export type Student={id:number;name:string;username:string}
+type AccountState={user:Student|null;status:'loading'|'guest'|'ready'|'saving'|'saved'|'offline'|'conflict';message:string;recoveryCode:string}
+let state:AccountState={user:null,status:'loading',message:'',recoveryCode:''},revision=0,applying=false,timer:ReturnType<typeof setTimeout>|undefined,initialized:Promise<void>|undefined,synced=''
+const listeners=new Set<()=>void>();const set=(p:Partial<AccountState>)=>{state={...state,...p};listeners.forEach(f=>f())}
+export const useAccount=()=>useSyncExternalStore(f=>{listeners.add(f);return()=>listeners.delete(f)},()=>state,()=>state)
+export async function accountRequest(path:string,body?:unknown,method='POST'){const response=await fetch('/api/account/'+path,{method,headers:{'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)});const data=await response.json();if(!response.ok){const e=new Error(data.error||'ارتباط با حساب انجام نشد.') as Error&{status:number};e.status=response.status;throw e}return data}
+async function attach(user:Student|null,recoveryCode=''){clearTimeout(timer);set({user,status:'loading',message:'',recoveryCode});applying=true;try{switchAccount(user?String(user.id):'guest',user?.name);revision=0;if(user){const d=await accountRequest('progress',undefined,'GET');revision=d.revision;if(d.progress)importProgress(validate(d.progress));}synced=JSON.stringify(getState());set({status:user?'ready':'guest'})}finally{applying=false}}
+export function initializeAccount(){if(!initialized)initialized=(async()=>{try{const d=await accountRequest('me',undefined,'GET');await attach(d.user)}catch{applying=true;switchAccount('guest');applying=false;set({user:null,status:'guest',message:'ورود به حساب به روشن بودن سرور و اتصال نیاز دارد.'})}})();return initialized}
+export async function authenticate(mode:string,data:Record<string,unknown>){const d=await accountRequest(mode,data);await attach(d.user,d.recoveryCode||'')}
+export async function logout(){await accountRequest('logout',{});await attach(null)}
+export async function loadAccountProgress(){if(!state.user)return;applying=true;try{const d=await accountRequest('progress',undefined,'GET');if(d.progress)importProgress(validate(d.progress));revision=d.revision;synced=JSON.stringify(getState());set({status:'ready',message:d.progress?'کارپوشهٔ حساب باز شد.':'حساب هنوز کارپوشهٔ ذخیره‌شده ندارد.'})}finally{applying=false}}
+export async function saveAccountProgress(){if(!state.user||state.status==='conflict'||applying)return;clearTimeout(timer);const userId=state.user.id,progress=getState(),snapshot=JSON.stringify(progress);set({status:'saving',message:''});try{const d=await accountRequest('progress',{progress,revision},'PUT');if(state.user?.id!==userId)return;revision=d.revision;synced=snapshot;set({status:'saved',message:'کارپوشه در حساب ذخیره شد.'});if(JSON.stringify(getState())!==snapshot)queueSave()}catch(e){if(state.user?.id!==userId)return;set({status:(e as Error&{status:number}).status===409?'conflict':'offline',message:(e as Error).message||'کارپوشه روی دستگاه محفوظ است؛ ذخیرهٔ حساب دوباره تلاش شود.'})}}
+function queueSave(){if(applying||!state.user||['loading','saving','conflict'].includes(state.status)||JSON.stringify(getState())===synced)return;clearTimeout(timer);timer=setTimeout(()=>void saveAccountProgress(),1200)}
+onProgressChange(queueSave)
+export const hideRecovery=()=>set({recoveryCode:''})
+export const getAccountState=()=>state

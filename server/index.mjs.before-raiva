@@ -1,0 +1,26 @@
+import {spawn} from 'node:child_process'
+import http from 'node:http'
+import {readFile,stat} from 'node:fs/promises'
+import {fileURLToPath} from 'node:url'
+import path from 'node:path'
+import {createApp} from './app.mjs'
+import {aiProvider} from './ai-provider.mjs'
+const arg=(name)=>{const i=process.argv.indexOf(name);return i>=0?process.argv[i+1]:undefined}
+const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))),dev=process.argv.includes('--dev'),host=arg('--host')||process.env.HOST||'127.0.0.1',port=Number(arg('--port')||process.env.PORT)||5173
+const ai=aiProvider(process.env),unconfiguredDemo=dev&&!['ollama','openrouter'].includes(ai.id)&&!process.env.OPENAI_API_KEY&&!process.env.GAPGPT_API_KEY&&!process.env.AVALAI_API_KEY&&!process.env.GROQ_API_KEY&&!process.env.OPENROUTER_API_KEY&&!process.env.TEACHER_PIN
+if(!unconfiguredDemo&&!['127.0.0.1','localhost','::1'].includes(host)&&(!process.env.PUBLIC_ORIGIN?.startsWith('https://')||!process.env.AI_ACCESS_CODE||process.env.AI_ACCESS_CODE.length<12))throw Error('For a network-facing server, set an HTTPS PUBLIC_ORIGIN and AI_ACCESS_CODE (12+ characters). See README-FA.md.')
+const app=createApp({dbPath:path.join(root,'data/smartclass.sqlite')});let vite
+const mime={'.html':'text/html;charset=utf-8','.js':'text/javascript;charset=utf-8','.css':'text/css;charset=utf-8','.json':'application/json','.webmanifest':'application/manifest+json','.woff2':'font/woff2','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.pdf':'application/pdf'}
+const csp="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-src 'self' blob: https://www.aparat.com https://aparat.com; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'"
+const server=http.createServer({maxHeaderSize:16384},async(req,res)=>{
+ res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');res.setHeader('X-Frame-Options','SAMEORIGIN');res.setHeader('Permissions-Policy','camera=(self), microphone=(self), geolocation=(), payment=()');if(!dev)res.setHeader('Content-Security-Policy',csp)
+ try{if(req.url?.startsWith('/api/')){await app.handle(req,res);return}if(dev){vite.middlewares(req,res);return}if(!['GET','HEAD'].includes(req.method)){res.writeHead(405);res.end();return}
+ const pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);const dist=path.join(root,'dist');let file=path.resolve(dist,'.'+pathname);if(!file.startsWith(dist+path.sep)&&file!==dist){res.writeHead(403);res.end();return}if(pathname.endsWith('/'))file=path.join(file,'index.html');try{const s=await stat(file);if(!s.isFile())throw Error()}catch{if(path.extname(pathname)){res.writeHead(404);res.end('Not found');return}file=path.join(dist,'index.html')}
+ const content=await readFile(file);res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');res.setHeader('Cache-Control',file.includes(path.sep+'assets'+path.sep)?'public,max-age=31536000,immutable':'no-cache');res.writeHead(200);res.end(req.method==='HEAD'?undefined:content)
+ }catch{if(!res.headersSent)res.writeHead(500);res.end('Unable to serve request.')}
+})
+server.requestTimeout=90000;server.headersTimeout=15000;server.keepAliveTimeout=5000
+if(dev){const {createServer}=await import('vite');vite=await createServer({root,server:{middlewareMode:true,hmr:{server},allowedHosts:['localhost','127.0.0.1','terminal.local']},appType:'spa'})}
+server.listen(port,host,()=>console.log(`\n  SmartClass AI Studio\n  Local: http://${host}:${port}/\n  Mode: ${dev?'development':'production'}\n  AI: ${ai.label} - ${ai.configured?'configured':'needs configuration'}\n`))
+if(process.argv.includes('--open')&&process.platform==='win32'&&['127.0.0.1','localhost'].includes(host))server.on('listening',()=>{const child=spawn('cmd.exe',['/c','start','',`http://${host}:${port}/`],{windowsHide:true,stdio:'ignore'});child.on('error',()=>{});child.unref()})
+const shutdown=()=>{server.close(async()=>{await vite?.close();app.close();process.exit(0)})};process.on('SIGINT',shutdown);process.on('SIGTERM',shutdown)
